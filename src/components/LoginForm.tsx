@@ -13,8 +13,7 @@ const LoginForm: React.FC = () => {
     e.preventDefault();
     setError(null);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email, password,
     });
 
