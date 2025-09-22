@@ -63,13 +63,7 @@ const PortfolioList = () => {
                 )}
               </td>
               <td className="px-4 py-2">
-                {item.image_url && (
-                  <img
-                    src={item.image_url}
-                    alt="preview"
-                    className="w-16 h-16 object-cover"
-                  />
-                )}
+                {<a href={item.project_url} target="_blank">{item.project_url}</a>}
               </td>
 
               <td className="px-4 py-2 space-x-2">

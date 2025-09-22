@@ -3,12 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 
-const BLOG_BUCKET = "blog";
-
-function getExt(fileName: string) {
-  const parts = fileName.split(".");
-  return parts.length > 1 ? parts.pop()!.toLowerCase() : "jpg";
-}
+const BUCKET = "portfolio";
 
 async function getUserId() {
   const { data, error } = await supabase.auth.getUser();
@@ -16,113 +11,85 @@ async function getUserId() {
   return data.user.id;
 }
 
-async function uploadCover(file: File, userId: string) {
-  const ext = getExt(file.name);
+async function uploadImage(file: File, userId: string) {
+  const ext = file.name.split(".").pop();
   const path = `${userId}/${Date.now()}.${ext}`;
 
   const { error: uploadError } = await supabase.storage
-    .from(BLOG_BUCKET)
+    .from(BUCKET)
     .upload(path, file);
 
   if (uploadError) throw uploadError;
 
-  const { data } = supabase.storage.from(BLOG_BUCKET).getPublicUrl(path);
-  return { publicUrl: data.publicUrl, path };
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  return data.publicUrl;
 }
 
-// Extracts "userId/filename.ext" from a public URL like:
-// https://<proj>.supabase.co/storage/v1/object/public/blog/userId/filename.ext
-function getStoragePathFromPublicUrl(publicUrl: string | null | undefined) {
-  if (!publicUrl) return null;
-  const marker = `/object/public/${BLOG_BUCKET}/`;
-  const idx = publicUrl.indexOf(marker);
-  if (idx === -1) return null;
-  return publicUrl.substring(idx + marker.length);
-}
-
-const EditBlog = () => {
+const AdminPortfolioEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
-  const [content, setContent] = useState("");
-  const [coverUrl, setCoverUrl] = useState<string>("");
+  const [description, setDescription] = useState("");
+  const [link, setLink] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    const fetchPost = async () => {
-      setLoading(true);
+    const fetchProject = async () => {
       const { data, error } = await supabase
-        .from("blog_posts")
+        .from("portfolio_items")
         .select("*")
         .eq("id", id)
         .single();
 
       if (error) {
-        setMessage("❌ Не вдалося завантажити статтю");
+        setMessage("❌ Не вдалося завантажити проєкт");
       } else if (data) {
         setTitle(data.title);
-        setSlug(data.slug);
-        setContent(data.content);
-        setCoverUrl(data.cover_image || "");
+        setDescription(data.description);
+        setLink(data.project_url);
+        setImageUrl(data.image_url || "");
       }
       setLoading(false);
     };
-    fetchPost();
+    fetchProject();
   }, [id]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
-    setSubmitting(true);
 
     try {
       const userId = await getUserId();
       if (!userId) {
-        setMessage("❌ Потрібно увійти в акаунт, щоб редагувати статтю.");
-        setSubmitting(false);
+        setMessage("❌ Потрібно увійти для редагування");
         return;
       }
 
-      let newCoverUrl = coverUrl;
-      let oldPathToRemove: string | null = null;
-
+      let newImageUrl = imageUrl;
       if (file) {
-        // remember old path (if existed) for optional cleanup
-        oldPathToRemove = getStoragePathFromPublicUrl(coverUrl);
-
-        const { publicUrl } = await uploadCover(file, userId);
-        newCoverUrl = publicUrl;
+        newImageUrl = await uploadImage(file, userId);
       }
 
       const { error } = await supabase
-        .from("blog_posts")
+        .from("portfolio_items")
         .update({
           title,
-          slug,
-          content,
-          cover_image: newCoverUrl,
-          updated_at: new Date().toISOString(),
+          description,
+          project_url: link,
+          image_url: newImageUrl,
         })
         .eq("id", id);
 
       if (error) throw error;
 
-      // Optional: cleanup old file if a new one was uploaded
-      if (file && oldPathToRemove) {
-        await supabase.storage.from(BLOG_BUCKET).remove([oldPathToRemove]);
-      }
-
-      setMessage("✅ Статтю оновлено!");
-      setTimeout(() => navigate("/admin/blog"), 800);
+      setMessage("✅ Проєкт оновлено!");
+      setTimeout(() => navigate("/admin/portfolio"), 1000);
     } catch (err: any) {
-      setMessage("❌ Помилка оновлення: " + (err?.message || "невідома"));
-    } finally {
-      setSubmitting(false);
+      setMessage("❌ Помилка: " + (err.message || "невідома"));
     }
   };
 
@@ -130,35 +97,38 @@ const EditBlog = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">Редагування статті</h2>
-      <form onSubmit={handleUpdate} className="p-4 bg-white rounded shadow">
+      <h2 className="text-2xl font-bold mb-4">Редагування проєкту</h2>
+      <form
+        onSubmit={handleUpdate}
+        className="p-4 bg-white rounded shadow space-y-3"
+      >
         <input
           type="text"
-          placeholder="Заголовок"
+          placeholder="Назва"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full mb-2 p-2 border rounded"
-          required
-        />
-        <input
-          type="text"
-          placeholder="Slug"
-          value={slug}
-          onChange={(e) => setSlug(e.target.value)}
-          className="w-full mb-2 p-2 border rounded"
+          className="w-full p-2 border rounded"
           required
         />
         <textarea
-          placeholder="Markdown контент"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className="w-full mb-2 p-2 border rounded h-64 font-mono"
+          placeholder="Опис"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full p-2 border rounded h-32"
+          required
         />
-        {coverUrl && (
-          <div className="mb-3">
-            <p className="text-sm text-gray-600">Поточна обкладинка:</p>
+        <input
+          type="url"
+          placeholder="Посилання на проєкт"
+          value={link}
+          onChange={(e) => setLink(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        {imageUrl && (
+          <div>
+            <p className="text-sm text-gray-600">Поточне зображення:</p>
             <img
-              src={coverUrl}
+              src={imageUrl}
               alt="cover"
               className="w-32 h-32 object-cover rounded"
             />
@@ -168,14 +138,13 @@ const EditBlog = () => {
           type="file"
           accept="image/*"
           onChange={(e) => setFile(e.target.files?.[0] || null)}
-          className="w-full mb-3"
+          className="w-full"
         />
         <button
           type="submit"
-          disabled={submitting}
-          className="bg-blue-600 disabled:bg-blue-300 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 text-white px-4 py-2 rounded"
         >
-          {submitting ? "Зберігаємо…" : "Зберегти"}
+          Зберегти
         </button>
         {message && <p className="mt-2">{message}</p>}
       </form>
@@ -183,4 +152,4 @@ const EditBlog = () => {
   );
 };
 
-export default EditBlog;
+export default AdminPortfolioEdit;
