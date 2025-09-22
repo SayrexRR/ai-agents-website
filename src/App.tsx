@@ -18,6 +18,7 @@ import BlogPostPage from './pages/BlogPost';
 import AdminBlogEdit from './pages/admin/AdminBlogEdit';
 import AdminBlog from './pages/admin/AdminBlog';
 import AdminBlogCreate from './pages/admin/AdminBlogCreate';
+import AdminContacts from './pages/admin/AdminContacts';
 
 const App = () => (
   <BrowserRouter>
@@ -36,8 +37,9 @@ const App = () => (
         <Route path="portfolio/new" element={<AdminPortfolioCreate />} />
         <Route path="portfolio/edit/:id" element={<AdminPortfolioEdit />} />
         <Route path="blog" element={<AdminBlog />} />
-         <Route path="blog/new" element={<AdminBlogCreate />} />
+        <Route path="blog/new" element={<AdminBlogCreate />} />
         <Route path="blog/edit/:id" element={<AdminBlogEdit />} />
+        <Route path="contacts" element={<AdminContacts />} />
       </Route>
       <Route path='/login' element={<Login />} />
     </Routes>

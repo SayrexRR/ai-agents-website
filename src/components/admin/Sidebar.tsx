@@ -24,6 +24,9 @@ const Sidebar = () => {
           <NavLink to="/admin/portfolio" className={({ isActive }) => isActive ? 'text-yellow-400 font-semibold' : ''}>
             🎨 Портфоліо
           </NavLink>
+          <NavLink to="/admin/contacts" className={({ isActive }) => isActive ? 'text-yellow-400 font-semibold' : ''}>
+            ✉️ Повідомлення
+          </NavLink>
         </nav>
       </div>
 
