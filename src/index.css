@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+#root {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
