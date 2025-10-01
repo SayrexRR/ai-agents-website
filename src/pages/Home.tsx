@@ -132,7 +132,7 @@ const Home = () => {
                       outerRadius={100}
                       label
                     >
-                      {dataSavings.map((entry, index) => (
+                      {dataSavings.map((_entry, index) => (
                         <Cell
                           key={`cell-${index}`}
                           fill={COLORS[index % COLORS.length]}
