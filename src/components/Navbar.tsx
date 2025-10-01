@@ -1,9 +1,8 @@
-import { Bot } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
-import { cn } from "../lib/utils";
+import { Menu, X } from "lucide-react";
+import { useState } from "react";
 
 const Navbar = () => {
-    const location = useLocation();
+    const [open, setOpen] = useState(false);
 
     const navItems = [
         { label: 'Головна', path: '/' },
@@ -15,40 +14,57 @@ const Navbar = () => {
         { label: 'Логін', path: '/login' },
     ];
 
-    const isActive = (href: string) => location.pathname === href;
-
     return (
-        <nav className="w-full sticky top-0 z-50 bg-white backdrop-blur-md border-b">
-            <div className="w-full mx-auto px-4">
-                <div className="flex items-center justify-between h-16">
-                    <Link to="/" className="flex items-center space-x-2 text-xl font-bold">
-                        <div className="w-8 h-8 bg-blue-400 rounded-lg flex items-center justify-center">
-                            <Bot className="w-5 h-5 text-white" />
-                        </div>
-                        <span className="bg-blue-400 bg-clip-text text-transparent">
-                            AI Agents
-                        </span>
-                    </Link>
+      <header className="w-full fixed top-0 left-0 bg-white shadow-sm z-50">
+        <div className="max-w-7xl mx-auto flex items-center justify-between p-4">
+          <div className="text-2xl font-bold text-blue-600">AI Agents</div>
+          <nav className="hidden md:flex space-x-6">
+            {navItems.map((link) => (
+              <a
+                key={link.label}
+                href={link.path}
+                className="text-gray-700 hover:text-blue-600 transition"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+          <a
+            href="#order"
+            className="hidden md:inline-block bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition"
+          >
+            Order
+          </a>
+          <button
+            onClick={() => setOpen(!open)}
+            className="md:hidden p-2 rounded hover:bg-gray-100"
+        >
+            {open ? <X size={24} /> : <Menu size={24} />}
+        </button>
+        </div>
 
-                    <div className="hidden lg:flex items-center space-x-7">
-                        {navItems.map((item) => (
-                            <Link
-                                key={item.label}
-                                to={item.path}
-                                className={cn(
-                                    "text-sm font-medium transition-colors hover:text-blue-400 pb-1",
-                                    isActive(item.path)
-                                        ? "text-blue-500 border-b-2 pb-1"
-                                        : "text-gray-400"
-                                )}
-                                >
-                                    {item.label}
-                                </Link>
-                        ))}
-                    </div>
-                </div>
+        {open && (
+            <div className="md:hidden bg-white shadow-lg">
+                {navItems.map((link) => (
+                    <a
+                        key={link.label}
+                        href={link.path}
+                        className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        onClick={() => setOpen(false)}
+                    >
+                        {link.label}
+                    </a>
+                ))}
+                <a
+                    href="#order"
+                    className="block px-4 py-2 bg-blue-600 text-white text-center"
+                    onClick={() => setOpen(false)}
+                >
+                    Order
+                </a>
             </div>
-        </nav>
+        )}
+      </header>
     );
 };
 
