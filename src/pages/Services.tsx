@@ -25,7 +25,7 @@ const Services = () => {
   return (
     <Layout>
       <div className="w-full max-w-screen-xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Наші послуги</h1>
+        <h1 className="text-3xl font-bold mb-6">Наши Услуги</h1>
         {loading ? (
           <p>Завантаження...</p>
         ) : (

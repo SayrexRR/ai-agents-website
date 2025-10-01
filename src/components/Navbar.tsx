@@ -1,5 +1,6 @@
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
     const [open, setOpen] = useState(false);
@@ -20,13 +21,13 @@ const Navbar = () => {
           <div className="text-2xl font-bold text-blue-600">AI Agents</div>
           <nav className="hidden md:flex space-x-6">
             {navItems.map((link) => (
-              <a
+              <Link
                 key={link.label}
-                href={link.path}
+                to={link.path}
                 className="text-gray-700 hover:text-blue-600 transition"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
           <a
@@ -38,31 +39,30 @@ const Navbar = () => {
           <button
             onClick={() => setOpen(!open)}
             className="md:hidden p-2 rounded hover:bg-gray-100"
-        >
+          >
             {open ? <X size={24} /> : <Menu size={24} />}
-        </button>
+          </button>
         </div>
 
         {open && (
-            <div className="md:hidden bg-white shadow-lg">
-                {navItems.map((link) => (
-                    <a
-                        key={link.label}
-                        href={link.path}
-                        className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                        onClick={() => setOpen(false)}
-                    >
-                        {link.label}
-                    </a>
-                ))}
-                <a
-                    href="/#order"
-                    className="block px-4 py-2 bg-blue-600 text-white text-center"
-                    onClick={() => setOpen(false)}
-                >
-                    Заказать
-                </a>
-            </div>
+          <div className="md:hidden bg-white shadow-lg">
+            {navItems.map((link) => (
+              <Link
+                key={link.label}
+                to={link.path}
+                className="text-gray-700 hover:text-blue-600 transition"
+              >
+                {link.label}
+              </Link>
+            ))}
+            <a
+              href="/#order"
+              className="block px-4 py-2 bg-blue-600 text-white text-center"
+              onClick={() => setOpen(false)}
+            >
+              Заказать
+            </a>
+          </div>
         )}
       </header>
     );
