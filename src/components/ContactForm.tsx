@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
@@ -8,30 +6,28 @@ const ContactForm = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("");
-    setLoading(true);
 
-    try {
-      // 1. Зберігаємо у таблиці contacts
-      const { error } = await supabase
-        .from("messages")
-        .insert([{ name, email, message }]);
-      if (error) throw error;
+    if (!name || !email || !message) {
+      setStatus("❌ Заполните все поля");
+      return;
+    }
 
-      setStatus("✅ Повідомлення надіслано!");
+    const { error } = await supabase
+      .from("messages")
+      .insert([{ name, email, message }]);
+
+    if (error) {
+      setStatus("❌ Ошибка: " + error.message);
+    } else {
+      setStatus("✅ Сообщение отправоено!");
       setName("");
       setEmail("");
       setMessage("");
-    } catch (err: any) {
-      setStatus("❌ " + (err.message || "Невідома помилка"));
-    } finally {
-      setLoading(false);
     }
-
   };
 
   return (
@@ -65,10 +61,9 @@ const ContactForm = () => {
       />
       <button
         type="submit"
-        disabled={loading}
         className="w-full bg-blue-600 text-white py-3 rounded-lg shadow hover:bg-blue-700 transition"
       >
-        {loading ? 'Отправляем...' : 'Отправить'}
+        Отправить
       </button>
       {status && <p className="mt-2">{status}</p>}
     </form>
