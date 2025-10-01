@@ -1,5 +1,6 @@
 import Navbar from './Navbar';
 import Footer from './Footer';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -7,6 +8,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <Navbar />
         <main className="flex-grow pt-20">
           {children}
+          <SpeedInsights />
         </main>
       <Footer />
     </div>
