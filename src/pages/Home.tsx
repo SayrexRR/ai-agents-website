@@ -13,6 +13,7 @@ import {
   Cell,
 } from "recharts";
 import ContactForm from "../components/ContactForm";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const dataEfficiency = [
@@ -82,13 +83,13 @@ const Home = () => {
               <p className="text-gray-600 mt-2">Связь AI с вашими CRM и ERP.</p>
             </div>
           </div>
-          <a
-            href="/services"
+          <Link
+            to="/services"
             className="mt-8 inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-700 transition"
           >
             Все услуги
             <ArrowUpRight />
-          </a>
+          </Link>
         </section>
 
         {/* Benefits */}
