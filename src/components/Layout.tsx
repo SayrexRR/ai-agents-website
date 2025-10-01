@@ -3,9 +3,9 @@ import Footer from './Footer';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="font-sans">
+    <div className="min-h-screen flex flex-col font-sans">
       <Navbar />
-        <main className="pt-20">
+        <main className="flex-grow pt-20">
           {children}
         </main>
       <Footer />

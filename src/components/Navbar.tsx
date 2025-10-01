@@ -5,13 +5,13 @@ const Navbar = () => {
     const [open, setOpen] = useState(false);
 
     const navItems = [
-        { label: 'Головна', path: '/' },
-        { label: 'Послуги', path: '/services' },
-        { label: 'Портфоліо', path: '/portfolio' },
+        { label: 'Главная', path: '/' },
+        { label: 'Услуги', path: '/services' },
+        { label: 'Портфолио', path: '/portfolio' },
         { label: 'Блог', path: '/blog' },
-        { label: 'Контакти', path: '/contact' },
-        { label: 'Адмін', path: '/admin' },
-        { label: 'Логін', path: '/login' },
+        { label: 'Контакты', path: '/contact' },
+        { label: 'Админ', path: '/admin' },
+        { label: 'Логин', path: '/login' },
     ];
 
     return (
@@ -30,10 +30,10 @@ const Navbar = () => {
             ))}
           </nav>
           <a
-            href="#order"
+            href="/#order"
             className="hidden md:inline-block bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition"
           >
-            Order
+            Заказать
           </a>
           <button
             onClick={() => setOpen(!open)}
@@ -56,11 +56,11 @@ const Navbar = () => {
                     </a>
                 ))}
                 <a
-                    href="#order"
+                    href="/#order"
                     className="block px-4 py-2 bg-blue-600 text-white text-center"
                     onClick={() => setOpen(false)}
                 >
-                    Order
+                    Заказать
                 </a>
             </div>
         )}

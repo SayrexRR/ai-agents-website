@@ -6,33 +6,33 @@ const Footer = () => {
         <div>
           <h2 className="text-2xl font-bold text-blue-600">AI Agents</h2>
           <p className="text-gray-600 mt-2">
-            Ми створюємо інтелектуальних агентів, які допомагають бізнесу
-            зростати та економити ресурси.
+            Мы создаем интелектуальных агентов, которые помогают выростать
+            бизнесу и экономить ресурсы.
           </p>
         </div>
 
         {/* Навігація */}
         <div>
-          <h3 className="font-semibold text-gray-800">Навігація</h3>
+          <h3 className="font-semibold text-gray-800">Навигация</h3>
           <ul className="mt-2 space-y-2">
             <li>
-              <a href="#" className="hover:text-blue-600">
-                Головна
+              <a href="/" className="hover:text-blue-600">
+                Главная
               </a>
             </li>
             <li>
-              <a href="#services" className="hover:text-blue-600">
-                Послуги
+              <a href="/services" className="hover:text-blue-600">
+                Услуги
               </a>
             </li>
             <li>
-              <a href="#benefits" className="hover:text-blue-600">
-                Переваги
+              <a href="/portfolio" className="hover:text-blue-600">
+                Портфолио
               </a>
             </li>
             <li>
-              <a href="#order" className="hover:text-blue-600">
-                Замовлення
+              <a href="/blog" className="hover:text-blue-600">
+                Блог
               </a>
             </li>
           </ul>
@@ -40,13 +40,13 @@ const Footer = () => {
 
         {/* Контакти */}
         <div>
-          <h3 className="font-semibold text-gray-800">Контакти</h3>
+          <h3 className="font-semibold text-gray-800">Контакты</h3>
           <p className="mt-2 text-gray-600">Email: info@aiagents.com</p>
           <p className="text-gray-600">Тел: +380 00 000 00 00</p>
         </div>
       </div>
       <div className="text-center text-gray-500 py-4 border-t">
-        © 2025 AI Agents. Всі права захищені.
+        © 2025 AI Agents. Все права захищены.
       </div>
     </footer>
   );
