@@ -2,6 +2,7 @@ export type Service = {
   id: string;
   title: string;
   description: string;
-  icon_url?: string;
-  created_at: string;
+  price: number;
+  icon_url: string;
+  details: { name: string }[];
 };
