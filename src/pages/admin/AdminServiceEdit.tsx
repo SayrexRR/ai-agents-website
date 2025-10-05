@@ -1,74 +1,68 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '../../lib/supabaseClient';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabaseClient";
+import ServiceForm from "../../components/admin/ServiceForm";
+import { toast } from "sonner";
 
 const AdminServiceEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [iconUrl, setIconUrl] = useState('');
-  const [message, setMessage] = useState('');
+  const [service, setService] = useState<any | null>(null);
 
   useEffect(() => {
-    const fetchService = async () => {
-      const { data, error } = await supabase.from('services').select('*').eq('id', id).single();
-      if (error) {
-        setMessage('❌ Не вдалося завантажити послугу');
-      } else if (data) {
-        setTitle(data.title);
-        setDescription(data.description);
-        setIconUrl(data.icon_url);
-      }
+    const loadService = async () => {
+      const { data: serviceData, error: serviceError } = await supabase
+        .from("services")
+        .select("*")
+        .eq("id", id)
+        .single();
+      if (serviceError || !serviceData) return;
+
+      const { data: detailLinks } = await supabase
+        .from("service_details")
+        .select("detail_id, details(name, id)")
+        .eq("service_id", id);
+
+      const details = detailLinks?.map((d: any) => d.details) || [];
+      setService({ ...serviceData, details });
     };
-    fetchService();
+    loadService();
   }, [id]);
 
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (updatedService: any) => {
     const { error } = await supabase
-      .from('services')
-      .update({ title, description, icon_url: iconUrl })
-      .eq('id', id);
+      .from("services")
+      .update({
+        title: updatedService.title,
+        description: updatedService.description,
+        price: updatedService.price,
+        icon_url: updatedService.icon_url,
+      })
+      .eq("id", id);
 
     if (error) {
-      setMessage('❌ Помилка оновлення: ' + error.message);
-    } else {
-      setMessage('✅ Послугу оновлено!');
-      setTimeout(() => navigate('/admin/services'), 1000);
+      toast.error("Ошибка при обновлении");
+      return;
     }
+
+    await supabase.from("service_details").delete().eq("service_id", id);
+    const relations = updatedService.details.map((d: any) => ({
+      service_id: id,
+      detail_id: d.id,
+    }));
+    await supabase.from("service_details").insert(relations);
+
+    toast.success("Сервис оновлен");
+    navigate("/admin/services");
   };
 
+  if (!service) return <p className="p-6">Загрузка...</p>;
+
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Редагування послуги</h2>
-      <form onSubmit={handleUpdate} className="p-4 bg-white rounded shadow">
-        <input
-          type="text"
-          placeholder="Назва"
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-          className="w-full mb-2 p-2 border rounded"
-          required
-        />
-        <textarea
-          placeholder="Опис"
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-          className="w-full mb-2 p-2 border rounded"
-        />
-        <input
-          type="text"
-          placeholder="URL іконки"
-          value={iconUrl}
-          onChange={e => setIconUrl(e.target.value)}
-          className="w-full mb-2 p-2 border rounded"
-        />
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          Зберегти
-        </button>
-        {message && <p className="mt-2">{message}</p>}
-      </form>
+    <div className="p-6">
+      <h1 className="text-2xl mb-6 font-semibold">Редактировать сервис</h1>
+      <ServiceForm existingService={service} onSave={handleSave} />
     </div>
   );
 };
