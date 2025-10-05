@@ -52,7 +52,7 @@ const Services = () => {
             return (
               <Card
                 key={service.id}
-                className="max-w-sm mx-auto flex flex-col justify-between hover:shadow-xl transition transform hover:-translate-y-1"
+                className="w-full h-full flex flex-col justify-between hover:shadow-xl transition transform hover:-translate-y-1"
               >
                 <CardHeader className="flex items-center justify-center space-x-4">
                   <Icon className="w-10 h-10 text-blue-500" />
