@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "../ui/Dialog";
-import { icons } from "lucide-react";
+import { icons, Plus, X } from "lucide-react";
 import { supabase } from "../../lib/supabaseClient";
 import { toast } from "sonner";
 import IconPicker from "../IconPicker";
@@ -35,23 +35,19 @@ const ServiceForm = ({ existingService, onSave }: ServiceFormProps) => {
     existingService?.description || ""
   );
   const [price, setPrice] = useState(existingService?.price || "");
-  const [icon, setIcon] = useState<IconKey | null>(existingService?.icon_url || "Package");
+  const [icon, setIcon] = useState<IconKey | null>(
+    existingService?.icon_url || "Package"
+  );
 
   const [availableDetails, setAvailableDetails] = useState<Detail[]>([]);
   const [selectedDetails, setSelectedDetails] = useState<Detail[]>(
     existingService?.details || []
   );
 
-  // native select state
   const [selectedDetailId, setSelectedDetailId] = useState<string>("");
-
-  // modal for creating new detail
   const [isDetailModalOpen, setDetailModalOpen] = useState(false);
   const [newDetailName, setNewDetailName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-
-  // icons
-  // const iconList = Object.keys(LucideIcons).slice(0, 200);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -60,7 +56,6 @@ const ServiceForm = ({ existingService, onSave }: ServiceFormProps) => {
         console.error(error);
         return;
       }
-      // merge with any existingService.details to ensure no missing items
       const merged = [...(data || [])];
       if (existingService?.details) {
         for (const d of existingService.details) {
@@ -71,21 +66,17 @@ const ServiceForm = ({ existingService, onSave }: ServiceFormProps) => {
       setAvailableDetails(merged);
     };
     fetchDetails();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [existingService?.id]);
 
   const handleAddDetail = () => {
     if (!selectedDetailId) {
-      toast("Выберете деталь из списка");
+      toast("Выберите деталь из списка");
       return;
     }
     const found = availableDetails.find(
       (d) => String(d.id) === String(selectedDetailId)
     );
-    if (!found) {
-      toast.error("Выбирите деталь из списка");
-      return;
-    }
+    if (!found) return;
     if (selectedDetails.find((d) => String(d.id) === String(found.id))) {
       toast("Деталь уже добавлена");
       setSelectedDetailId("");
@@ -111,16 +102,14 @@ const ServiceForm = ({ existingService, onSave }: ServiceFormProps) => {
         .select()
         .single();
       if (error || !data) {
-        console.error(error);
         toast.error("Ошибка при создании детали");
         return;
       }
-      // add to available and selected (UX: new detail becomes selected right away)
       setAvailableDetails((prev) => [...prev, data]);
       setSelectedDetails((prev) => [...prev, data]);
       setNewDetailName("");
       setDetailModalOpen(false);
-      toast.success("Деталь создано");
+      toast.success("Деталь создана");
     } catch (err) {
       console.error(err);
       toast.error("Ошибка при создании детали");
@@ -138,151 +127,121 @@ const ServiceForm = ({ existingService, onSave }: ServiceFormProps) => {
       description,
       price,
       icon_url: icon,
-      details: selectedDetails, // array of {id, name}
+      details: selectedDetails,
     };
 
     try {
-      await onSave(payload); // parent (AdminServiceCreate / AdminServiceEdit) must handle insert/update + relations
+      await onSave(payload);
     } catch (err) {
-      console.error(err);
       toast.error("Ошибка при сохранении");
+      console.error(err);
     } finally {
       setIsSaving(false);
     }
   };
 
-  // const IconPreview = (LucideIcons as any)[icon] || LucideIcons.Package;
-
   return (
     <>
-      <form
-        onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-2 gap-8"
-      >
-        {/* LEFT */}
-        <Card className="p-6">
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <Card className="p-6 shadow-md">
           <CardHeader>
-            <CardTitle>Основная информация</CardTitle>
+            <CardTitle className="text-xl font-semibold text-gray-800">
+              {existingService ? "Редактировать услугу" : "Создать услугу"}
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label>Название</Label>
-              <Input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <Label>Описание</Label>
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label>Цена (€)</Label>
-              <Input
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <Label>Иконка</Label>
-              {/* <div className="grid grid-cols-6 gap-2 max-h-48 overflow-y-auto border p-2 rounded">
-                {iconList.map((iconName) => {
-                  const IconComp = (LucideIcons as any)[iconName];
-                  return (
-                    <button
-                      key={iconName}
-                      type="button"
-                      onClick={() => setIcon(iconName)}
-                      className={`p-2 rounded border ${
-                        icon === iconName
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-gray-200"
-                      } hover:border-blue-300`}
-                    >
-                      <IconComp className="w-5 h-5 mx-auto text-gray-700" />
-                    </button>
-                  );
-                })}
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* LEFT */}
+            <div className="space-y-4">
+              <div>
+                <Label>Название</Label>
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                  className="mt-1 focus:ring-2 focus:ring-blue-500"
+                />
               </div>
 
-              <div className="flex items-center mt-3">
-                <IconPreview className="w-6 h-6 text-blue-600 mr-2" />
-                <span className="text-sm text-gray-700">{icon}</span>
-              </div> */}
-              <IconPicker
-                value={icon ?? undefined}
-                onChange={setIcon}
-              />
-            </div>
-          </CardContent>
-        </Card>
+              <div>
+                <Label>Описание</Label>
+                <Textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="mt-1 focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-        {/* RIGHT */}
-        <Card className="p-6">
-          <CardHeader>
-            <div className="flex justify-between">
-              <CardTitle>Детали услуги</CardTitle>
-              <Button
-                className="bg-green-500 hover:bg-green-600"
-                type="button"
-                onClick={() => setDetailModalOpen(true)}
-              >
-                Добавить новую деталь
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {/* select + add button: select займатиме всю доступну ширину правої колонки */}
-            <div className="grid grid-cols-[1fr_auto] gap-2 mb-4">
-              <select
-                value={selectedDetailId}
-                onChange={(e) => setSelectedDetailId(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-              >
-                <option value="">-- Выбирите деталь --</option>
-                {availableDetails.map((d) => (
-                  <option key={String(d.id)} value={String(d.id)}>
-                    {d.name}
-                  </option>
-                ))}
-              </select>
+              <div>
+                <Label>Цена (€)</Label>
+                <Input
+                  type="number"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  required
+                  className="mt-1 focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-              <Button type="button" onClick={handleAddDetail}>
-                Выбрать
-              </Button>
+              <div>
+                <Label>Иконка</Label>
+                <IconPicker value={icon ?? undefined} onChange={setIcon} />
+              </div>
             </div>
 
-            {/* selected details */}
-            <ul className="space-y-2">
-              {selectedDetails.map((d) => (
-                <li
-                  key={String(d.id)}
-                  className="flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-200"
+            {/* RIGHT */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <Label className="font-medium">Детали услуги</Label>
+                <Button
+                  type="button"
+                  className="flex items-center gap-1 bg-green-500 hover:bg-green-600"
+                  onClick={() => setDetailModalOpen(true)}
                 >
-                  <span>{d.name}</span>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={() => handleRemoveDetail(d.id)}
+                  <Plus className="w-4 h-4" /> Новая деталь
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-[1fr_auto] gap-2">
+                <select
+                  value={selectedDetailId}
+                  onChange={(e) => setSelectedDetailId(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                >
+                  <option value="">-- Выберите деталь --</option>
+                  {availableDetails.map((d) => (
+                    <option key={String(d.id)} value={String(d.id)}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+                <Button type="button" onClick={handleAddDetail}>
+                  Добавить
+                </Button>
+              </div>
+
+              {/* Selected details as tags */}
+              <div className="flex flex-wrap gap-2">
+                {selectedDetails.map((d) => (
+                  <span
+                    key={String(d.id)}
+                    className="flex items-center gap-1 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm border border-blue-200"
                   >
-                    Удалить
-                  </Button>
-                </li>
-              ))}
-            </ul>
+                    {d.name}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveDetail(d.id)}
+                      className="hover:text-red-500"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        <div className="md:col-span-2 flex justify-end">
+        <div className="flex justify-end">
           <Button type="submit" className="px-8" disabled={isSaving}>
             {isSaving ? "Сохраняю..." : "Сохранить"}
           </Button>

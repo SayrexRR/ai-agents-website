@@ -19,6 +19,7 @@ import AdminBlogEdit from './pages/admin/AdminBlogEdit';
 import AdminBlog from './pages/admin/AdminBlog';
 import AdminBlogCreate from './pages/admin/AdminBlogCreate';
 import AdminContacts from './pages/admin/AdminContacts';
+import AdminDashboard from './pages/admin/Admin';
 
 const App = () => (
   <BrowserRouter>
@@ -30,7 +31,8 @@ const App = () => (
       <Route path='/blog/:slug' element={<BlogPostPage />} />
       <Route path='/contact' element={<Contact />} />
       <Route path='/admin' element={<ProtectedRoute><AdminLayout/></ProtectedRoute>}>
-        <Route path="services" element={<AdminServices />} />
+      <Route path="services" element={<AdminServices />} />
+        <Route path="" element={<AdminDashboard />} />
         <Route path='services/new' element={<AdminServiceCreate />} />
         <Route path="services/edit/:id" element={<AdminServiceEdit />} />
         <Route path="portfolio" element={<AdminPortfolio />} />
