@@ -40,3 +40,76 @@ html, body, #root {
 .animate-scale-in {
     animation: scale-in 0.2s ease-out;
 }
+
+.blog-content {
+    max-width: 100%;
+    line-height: 1.7;
+    font-size: 1.05rem;
+    color: #1f2937;
+    /* text-gray-800 */
+}
+
+.blog-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    /* трохи округлені кути */
+    margin: 1.5rem auto;
+    display: block;
+}
+
+.blog-content h1,
+.blog-content h2,
+.blog-content h3,
+.blog-content h4 {
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: #111827;
+    /* text-gray-900 */
+}
+
+.blog-content p {
+    margin-bottom: 1rem;
+}
+
+.blog-content a {
+    color: #2563eb;
+    /* синій */
+    text-decoration: underline;
+}
+
+.blog-content blockquote {
+    border-left: 4px solid #2563eb;
+    padding-left: 1rem;
+    color: #374151;
+    /* text-gray-700 */
+    font-style: italic;
+    margin: 1.5rem 0;
+}
+
+.blog-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+}
+
+.blog-content table th,
+.blog-content table td {
+    border: 1px solid #d1d5db;
+    /* gray-300 */
+    padding: 0.5rem 0.75rem;
+}
+
+.blog-content ul,
+.blog-content ol {
+    margin: 1rem 0 1rem 1.5rem;
+}
+
+.blog-content code {
+    background: #f3f4f6;
+    /* gray-100 */
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-family: monospace;
+}

@@ -43,12 +43,12 @@ const Navbar = () => {
 
         {/* Desktop CTA button */}
         <div className="hidden md:block">
-          <NavLink
-            to="/order"
+          <a
+            href="/#order"
             className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition"
           >
             Заказать
-          </NavLink>
+          </a>
         </div>
 
         {/* Mobile menu button */}
@@ -86,13 +86,13 @@ const Navbar = () => {
 
             {/* Mobile CTA button (НЕ на всю ширину) */}
             <div className="my-3">
-              <NavLink
-                to="/order"
+              <a
+                href="/#order"
                 onClick={() => setMenuOpen(false)}
                 className="self-start bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition"
               >
                 Заказать
-              </NavLink>
+              </a>
             </div>
           </div>
         </nav>
