@@ -1,94 +1,128 @@
-import { useState } from 'react';
-import { supabase } from '../../lib/supabaseClient';
-import { useNavigate } from 'react-router-dom';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
+import { supabase } from "../../lib/supabaseClient";
+import { Input } from "../ui/Input";
+import { Textarea } from "../ui/Textarea";
+import { Label } from "../ui/Label";
+import { Button } from "../ui/Button";
+import { Card, CardHeader, CardTitle, CardContent } from "../ui/Card";
+import { toast } from "sonner";
 
-const PortfolioForm = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [projectUrl, setProjectUrl] = useState('');
-  const [file, setFile] = useState<File | null>(null);
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate();
+interface PortfolioFormProps {
+  existingItem?: any;
+  onSave: (data: any) => Promise<void>;
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const PortfolioForm = ({ existingItem, onSave }: PortfolioFormProps) => {
+  const [title, setTitle] = useState(existingItem?.title || "");
+  const [description, setDescription] = useState(
+    existingItem?.description || ""
+  );
+  const [projectUrl, setProjectUrl] = useState(existingItem?.project_url || "");
+  const [imageUrl, setImageUrl] = useState(existingItem?.image_url || "");
+  const [uploading, setUploading] = useState(false);
 
-    // ✅ Завантаження зображення у Supabase Storage
-    const { data: userData } = await supabase.auth.getUser();
-    const userId = userData.user?.id;
-    if (!userId) {
-      setMessage("❌ Потрібно увійти в акаунт для завантаження");
-      return;
-    }
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    let imageUrl: string | null = null;
-
-    if (file) {
-      const ext = file.name.split(".").pop();
-      const path = `${userId}/${Date.now()}.${ext}`;
-
-      const { error: uploadError } = await supabase.storage
+    try {
+      setUploading(true);
+      const fileName = `${Date.now()}-${file.name}`;
+      const { error } = await supabase.storage
         .from("portfolio")
-        .upload(path, file);
+        .upload(fileName, file);
+      if (error) throw error;
 
-      if (uploadError) {
-        setMessage(
-          "❌ Помилка завантаження зображення: " + uploadError.message
-        );
-        return;
-      }
-
-      const { data } = supabase.storage.from("portfolio").getPublicUrl(path);
-      imageUrl = data.publicUrl;
-    }
-
-    // ✅ Додаємо запис у таблицю
-    const { error } = await supabase.from('portfolio_items').insert([
-      { title, description, project_url: projectUrl, image_url: imageUrl },
-    ]);
-
-    if (error) {
-      setMessage('❌ Помилка: ' + error.message);
-    } else {
-      setMessage('✅ Проєкт додано!');
-      setTimeout(() => navigate('/admin/portfolio'), 1000);
+      const { data } = supabase.storage
+        .from("portfolio")
+        .getPublicUrl(fileName);
+      setImageUrl(data.publicUrl);
+      toast.success("✅ Изображение успешно загружено");
+    } catch (err) {
+      console.error(err);
+      toast.error("❌ Ошибка при загрузке изображения");
+    } finally {
+      setUploading(false);
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const payload = {
+      title,
+      description,
+      project_url: projectUrl,
+      image_url: imageUrl,
+    };
+    await onSave(payload);
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="p-4 bg-white rounded shadow">
-      <h3 className="text-lg font-bold mb-4">Додати новий проєкт</h3>
-      <input
-        type="text"
-        placeholder="Назва"
-        value={title}
-        onChange={e => setTitle(e.target.value)}
-        className="w-full mb-2 p-2 border rounded"
-        required
-      />
-      <textarea
-        placeholder="Опис"
-        value={description}
-        onChange={e => setDescription(e.target.value)}
-        className="w-full mb-2 p-2 border rounded"
-      />
-      <input
-        type="url"
-        placeholder="Посилання на проєкт"
-        value={projectUrl}
-        onChange={e => setProjectUrl(e.target.value)}
-        className="w-full mb-2 p-2 border rounded"
-      />
-      <input
-        type="file"
-        accept="image/*"
-        onChange={e => setFile(e.target.files?.[0] || null)}
-        className="w-full mb-2"
-      />
-      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        Додати
-      </button>
-      {message && <p className="mt-2">{message}</p>}
+    <form onSubmit={handleSubmit} className="space-y-8">
+      <Card className="p-6 shadow-md">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold text-gray-800">
+            {existingItem ? "Редактировать работу" : "Добавить работу"}
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Левая часть */}
+          <div className="space-y-4">
+            <div>
+              <Label>Название</Label>
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Введите название проекта"
+                required
+                className="mt-1 focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <Label>Описание</Label>
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Краткое описание проекта"
+                className="mt-1 focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <Label>Ссылка на проект</Label>
+              <Input
+                value={projectUrl}
+                onChange={(e) => setProjectUrl(e.target.value)}
+                placeholder="https://example.com"
+                className="mt-1 focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          {/* Правая часть */}
+          <div className="space-y-4">
+            <Label>Изображение</Label>
+            <input type="file" onChange={handleUpload} disabled={uploading} />
+            {uploading && <p className="text-sm text-gray-500">Загрузка...</p>}
+            {imageUrl && (
+              <img
+                src={imageUrl}
+                alt="Превью"
+                className="mt-3 w-full max-h-64 object-cover rounded-lg shadow"
+              />
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-end">
+        <Button type="submit" className="px-8">
+          {existingItem ? "Сохранить изменения" : "Создать"}
+        </Button>
+      </div>
     </form>
   );
 };

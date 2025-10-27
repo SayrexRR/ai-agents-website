@@ -4,9 +4,13 @@ import { supabase } from "../../lib/supabaseClient";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/Button";
 import { Pencil, Trash2, Plus } from "lucide-react";
+import SearchBar from "../SearchBar";
 
 const ServiceList = () => {
   const [services, setServices] = useState<any[]>([]);
+  const [search, setSearch] = useState("");
+
+  const filteredServices = services.filter((s) => s.title.toLowerCase().includes(search.toLowerCase()));
 
   const fetchServices = async () => {
     const { data, error } = await supabase
@@ -41,6 +45,15 @@ const ServiceList = () => {
         </Link>
       </div>
 
+      <div className="text-left">
+        <h3 className="pb-3">Поиск</h3>
+        <SearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Поиск по заголовку ..."
+        />
+      </div>
+
       {/* Таблиця */}
       <div className="overflow-x-auto bg-white border rounded-lg shadow">
         <table className="w-full text-left border-collapse">
@@ -68,7 +81,7 @@ const ServiceList = () => {
                 </td>
               </tr>
             )}
-            {services.map((s) => (
+            {filteredServices.map((s) => (
               <tr
                 key={s.id}
                 className="border-b hover:bg-gray-50 transition-colors"

@@ -40,7 +40,6 @@ const AdminServiceCreate = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl mb-6 font-semibold">Создать сервис</h1>
       <ServiceForm onSave={handleSave} />
     </div>
   );

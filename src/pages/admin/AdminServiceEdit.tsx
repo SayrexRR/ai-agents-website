@@ -61,7 +61,6 @@ const AdminServiceEdit = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl mb-6 font-semibold">Редактировать сервис</h1>
       <ServiceForm existingService={service} onSave={handleSave} />
     </div>
   );
