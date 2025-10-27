@@ -161,9 +161,21 @@ const BlogForm = ({ post, onSave }: BlogFormProps) => {
               toolbar:
                 "undo redo | blocks fontfamily fontsize | bold italic underline forecolor backcolor | alignleft aligncenter alignright alignjustify | numlist bullist outdent indent | image media link | code fullscreen preview | help",
               font_family_formats:
-                "Arial=arial,helvetica,sans-serif; Courier New=courier new,courier,monospace; Georgia=georgia,palatino; Tahoma=tahoma,arial,helvetica,sans-serif; Times New Roman=times new roman,times; Verdana=verdana,geneva;",
-              content_style:
-                "body { font-family:Helvetica,Arial,sans-serif; font-size:16px; line-height:1.6; }",
+                "Arial=arial,helvetica,sans-serif;" +
+                "Georgia=georgia,palatino;" +
+                "Times New Roman=times new roman,times;" +
+                "Courier New=courier new,courier,monospace;" +
+                "Roboto=Roboto,sans-serif;" +
+                "Open Sans=Open Sans,sans-serif;" +
+                "Montserrat=Montserrat,sans-serif;" +
+                "Lora=Lora,serif;" +
+                "Merriweather=Merriweather,serif;" +
+                "Source Code Pro=Source Code Pro,monospace;" +
+                "Lobster=Lobster,cursive;",
+              content_style: `
+                 @import url('https://fonts.googleapis.com/css2?family=Roboto&family=Open+Sans&family=Montserrat&family=Lora&family=Merriweather&family=Source+Code+Pro&family=Lobster&display=swap');
+                 body { font-family: Roboto, Arial, sans-serif; }
+               `,
             }}
           />
         </div>
