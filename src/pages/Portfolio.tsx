@@ -1,63 +1,89 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
-import type { PortfolioItem } from '../interfaces/Portfolio'; 
-import Layout from '../components/Layout';
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
 
-const Portfolio = () => {
+interface PortfolioItem {
+  id: string;
+  title: string;
+  description: string;
+  image_url: string;
+  project_url?: string;
+  created_at: string;
+}
+
+const PortfolioPage = () => {
   const [items, setItems] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchItems = async () => {
       const { data, error } = await supabase
-        .from('portfolio_items')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) console.error(error);
-      else setItems(data || []);
+        .from("portfolio_items")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (!error) setItems(data || []);
       setLoading(false);
     };
-
     fetchItems();
   }, []);
 
+  if (loading) return <p className="p-6 text-gray-500">Загрузка...</p>;
+
   return (
-    <Layout>
-      <div className="w-full py-8 px-6">
-        <h1 className="text-3xl font-bold mb-6">Наші роботи</h1>
-        {loading ? (
-          <p>Завантаження...</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-            {items.map(item => (
-              <div key={item.id} className="bg-white p-6 rounded shadow hover:shadow-lg transition">
-                {item.image_url && (
-                  <img
-                    src={item.image_url}
-                    alt={item.title}
-                    className="w-full h-48 object-cover rounded mb-4"
-                  />
-                )}
-                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                <p className="mb-4">{item.description}</p>
+    <div className="p-6 max-w-7xl mx-auto">
+      <h1 className="text-3xl font-bold text-center mb-10">Моё портфолио</h1>
+
+      {items.length === 0 ? (
+        <p className="text-center text-gray-500">Пока что нет работ</p>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {items.map((item) => (
+            <Card
+              key={item.id}
+              className="overflow-hidden hover:shadow-lg transition rounded-lg"
+            >
+              {item.image_url && (
+                <img
+                  src={item.image_url}
+                  alt={item.title}
+                  className="w-full h-48 object-cover hover:scale-105 transition-transform"
+                />
+              )}
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-blue-600">
+                  {item.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-sm line-clamp-3 mb-4">
+                  {item.description}
+                </p>
                 {item.project_url && (
-                  <a
-                    href={item.project_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-600 underline hover:text-blue-800"
+                  <Button
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                   >
-                    Переглянути проєкт →
-                  </a>
+                    <a
+                      href={item.project_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Посмотреть проект
+                    </a>
+                  </Button>
                 )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </Layout>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 
-export default Portfolio;
+export default PortfolioPage;

@@ -6,10 +6,14 @@ import { toast } from "sonner";
 import { Button } from "../ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 import { Pencil, Trash2, Plus } from "lucide-react";
+import SearchBar from "../SearchBar";
 
 const BlogList = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+
+  const filteredPosts = posts.filter((p) => p.title.toLowerCase().includes(search.toLowerCase()));
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -44,10 +48,18 @@ const BlogList = () => {
           <Plus className="w-4 h-4" /> Добавить пост
         </Button>
       </div>
+      <div className="text-left">
+        <h3 className="pb-3">Поиск</h3>
+        <SearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Поиск по заголовку ..."
+        />
+      </div>
 
       {/* Список постов */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {posts.map((post) => (
+        {filteredPosts.map((post) => (
           <Card
             key={post.id}
             className="overflow-hidden hover:shadow-lg transition border rounded-md"

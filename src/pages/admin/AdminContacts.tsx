@@ -1,132 +1,163 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
+import { Button } from "../../components/ui/Button";
+import { Card } from "../../components/ui/Card"; 
+import { Mail, Trash2, CheckCircle } from "lucide-react";
+import { toast } from "sonner";
+import SearchBar from "../../components/SearchBar";
 
-type Contact = {
+interface Message {
   id: string;
   name: string;
   email: string;
   message: string;
   created_at: string;
-};
+  is_read?: boolean;
+}
 
-const AdminContacts = () => {
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState("");
-  const [selected, setSelected] = useState<Contact | null>(null);
+const MessagesPage = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [selected, setSelected] = useState<Message | null>(null);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
 
-  const fetchContacts = async () => {
-    setLoading(true);
+  const filteredMessages = messages.filter((m) => {
+    const matchSearch =
+      m.name.toLowerCase().includes(search.toLowerCase()) ||
+      m.email.toLowerCase().includes(search.toLowerCase()) ||
+      m.message.toLowerCase().includes(search.toLowerCase());
+    const matchFilter = filter === "all" || (filter === "unread" && !m.is_read);
+    return matchSearch && matchFilter;
+  });
+
+
+  const fetchMessages = async () => {
     const { data, error } = await supabase
       .from("messages")
       .select("*")
       .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error(error);
-      setStatus("❌ Помилка завантаження");
-    } else {
-      setContacts(data || []);
-    }
-    setLoading(false);
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("Видалити повідомлення?")) return;
-
-    const { error } = await supabase.from("messages").delete().eq("id", id);
-    if (error) {
-      setStatus("❌ Помилка видалення: " + error.message);
-    } else {
-      setStatus("✅ Видалено");
-      fetchContacts();
-    }
+    if (!error) setMessages(data || []);
   };
 
   useEffect(() => {
-    fetchContacts();
+    fetchMessages();
   }, []);
 
-  if (loading) return <p>Завантаження...</p>;
+  const markAsRead = async (id: string) => {
+    const { error } = await supabase
+      .from("messages")
+      .update({ is_read: true })
+      .eq("id", id);
+    if (!error) {
+      setMessages((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, is_read: true } : m))
+      );
+      toast.success("Сообщение позначено как прочитаное");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Удалить сообщение?")) return;
+    const { error } = await supabase.from("messages").delete().eq("id", id);
+    if (!error) {
+      setMessages((prev) => prev.filter((m) => m.id !== id));
+      setSelected(null);
+      toast.success("Сообщение удалено");
+    }
+  };
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Повідомлення користувачів</h2>
-      {status && <p className="mb-2">{status}</p>}
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300 rounded shadow">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-4 py-2 text-left">Імʼя</th>
-              <th className="px-4 py-2 text-left">Email</th>
-              <th className="px-4 py-2 text-left">Повідомлення</th>
-              <th className="px-4 py-2 text-left">Дата</th>
-              <th className="px-4 py-2 text-left">Дії</th>
-            </tr>
-          </thead>
-          <tbody>
-            {contacts.map((c) => (
-              <tr key={c.id} className="border-t hover:bg-gray-50">
-                <td className="px-4 py-2">{c.name}</td>
-                <td className="px-4 py-2">{c.email}</td>
-                <td
-                  className="px-4 py-2 cursor-pointer text-blue-600 underline"
-                  onClick={() => setSelected(c)}
-                >
-                  {c.message.length > 30
-                    ? c.message.slice(0, 30) + "…"
-                    : c.message}
-                </td>
-                <td className="px-4 py-2">
-                  {new Date(c.created_at).toLocaleString()}
-                </td>
-                <td className="px-4 py-2">
-                  <button
-                    onClick={() => handleDelete(c.id)}
-                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                  >
-                    🗑️ Видалити
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {contacts.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-gray-500">
-                  Немає повідомлень
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Модальне вікно */}
-      {selected && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded shadow-lg max-w-lg w-full p-6 relative">
-            <button
-              onClick={() => setSelected(null)}
-              className="absolute top-2 right-2 text-gray-500 hover:text-black"
-            >
-              ✖
-            </button>
-            <h3 className="text-xl font-bold mb-2">Повідомлення</h3>
-            <p>
-              <strong>Імʼя:</strong> {selected.name}
-            </p>
-            <p>
-              <strong>Email:</strong> {selected.email}
-            </p>
-            <p className="mt-2 whitespace-pre-wrap">{selected.message}</p>
-            <p className="text-sm text-gray-500 mt-4">
-              {new Date(selected.created_at).toLocaleString()}
-            </p>
-          </div>
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex-1">
+          <SearchBar
+            value={search}
+            onChange={setSearch}
+            placeholder="Поиск по имени, email или тексту ..."
+          />
         </div>
-      )}
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="border text-gray-500 rounded px-3 py-2"
+        >
+          <option value="all">Все</option>
+          <option value="unread">Непрочитаные</option>
+        </select>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Ліва панель — список */}
+        <Card className="col-span-1 overflow-y-auto max-h-[80vh]">
+          <ul className="divide-y">
+            {filteredMessages.map((m) => (
+              <li
+                key={m.id}
+                onClick={() => {
+                  setSelected(m);
+                  if (!m.is_read) markAsRead(m.id);
+                }}
+                className={`p-4 cursor-pointer hover:bg-gray-50 transition ${
+                  !m.is_read ? "bg-blue-50" : ""
+                }`}
+              >
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">{m.name}</span>
+                  <span className="text-xs text-gray-400">
+                    {new Date(m.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 truncate">{m.message}</p>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        {/* Права панель — деталі */}
+        <Card className="col-span-2 p-6">
+          {selected ? (
+            <div className="flex flex-col h-full">
+              <div className="flex justify-between items-center border-b pb-3 mb-4">
+                <div>
+                  <h2 className="text-xl font-semibold">{selected.name}</h2>
+                  <a
+                    href={`mailto:${selected.email}`}
+                    className="text-blue-600 text-sm"
+                  >
+                    {selected.email}
+                  </a>
+                </div>
+                <div className="flex gap-2">
+                  {!selected.is_read && (
+                    <Button
+                      variant="outline"
+                      onClick={() => markAsRead(selected.id)}
+                    >
+                      <CheckCircle className="w-4 h-4 mr-1" /> Прочитано
+                    </Button>
+                  )}
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleDelete(selected.id)}
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" /> Удалить
+                  </Button>
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <p className="text-gray-700 whitespace-pre-line">
+                  {selected.message}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="text-gray-500 flex items-center justify-center h-full">
+              <Mail className="w-6 h-6 mr-2" /> Виберите сообщение из списка
+            </div>
+          )}
+        </Card>
+      </div>
     </div>
   );
 };
 
-export default AdminContacts;
+export default MessagesPage;

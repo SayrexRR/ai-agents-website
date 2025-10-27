@@ -56,7 +56,7 @@ const AdminDashboard = () => {
 
         // Останні 5 повідомлень
         const { data: messagesData } = await supabase
-          .from("contacts")
+          .from("messages")
           .select("id, name, message, created_at")
           .order("created_at", { ascending: false })
           .limit(5);
