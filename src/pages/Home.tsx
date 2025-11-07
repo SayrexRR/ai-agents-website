@@ -214,10 +214,15 @@ const Home = () => {
 
         {/* Order Form */}
         <section id="order" className="py-20 max-w-3xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-gray-900">
-            Заказать услугу
-          </h2>
-          <ContactForm />
+          <div className="bg-white shadow-lg rounded-lg p-6 md:p-8">
+            <h2 className="text-2xl font-semibold mb-4 text-center">
+              Напишите нам
+            </h2>
+            <p className="text-gray-500 text-center mb-6">
+              Оставте сообщение, и мы свяжемся с вами в ближайшем времени
+            </p>
+            <ContactForm />
+          </div>
         </section>
       </div>
     </Layout>

@@ -7,6 +7,7 @@ import { supabase } from "../../lib/supabaseClient";
 import { Editor } from "@tinymce/tinymce-react";
 import type { BlogPost } from "../../interfaces/Blog";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface BlogFormProps {
   post?: BlogPost;
@@ -20,6 +21,12 @@ const BlogForm = ({ post, onSave }: BlogFormProps) => {
   const [content, setContent] = useState(post?.content || "");
   const [coverImage, setCoverImage] = useState(post?.cover_image || "");
   const [uploading, setUploading] = useState(false);
+
+  const navigate = useNavigate();
+
+  const handleCancel = () => {
+    navigate(-1);
+  };
 
   const editorRef = useRef<any>(null);
 
@@ -183,9 +190,14 @@ const BlogForm = ({ post, onSave }: BlogFormProps) => {
 
       {/* Кнопка */}
       <Button
-        type="submit"
-        className="w-full py-3 text-lg font-semibold bg-blue-600 hover:bg-blue-700 transition"
+        type="button"
+        variant="outline"
+        onClick={handleCancel}
+        className="mx-2"
       >
+        Отмена
+      </Button>
+      <Button type="submit" variant="primary" className="mx-2">
         Сохранить статью
       </Button>
     </form>

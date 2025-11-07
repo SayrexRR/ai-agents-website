@@ -20,6 +20,7 @@ import AdminBlog from './pages/admin/AdminBlog';
 import AdminBlogCreate from './pages/admin/AdminBlogCreate';
 import AdminContacts from './pages/admin/AdminContacts';
 import AdminDashboard from './pages/admin/Admin';
+import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 
 const App = () => (
   <BrowserRouter>
@@ -42,6 +43,7 @@ const App = () => (
         <Route path="blog/new" element={<AdminBlogCreate />} />
         <Route path="blog/edit/:id" element={<AdminBlogEdit />} />
         <Route path="contacts" element={<AdminContacts />} />
+        <Route path="settings" element={<AdminSettingsPage />} />
       </Route>
       <Route path='/login' element={<Login />} />
     </Routes>

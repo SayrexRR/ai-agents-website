@@ -16,6 +16,7 @@ import { icons, Plus, X } from "lucide-react";
 import { supabase } from "../../lib/supabaseClient";
 import { toast } from "sonner";
 import IconPicker from "../IconPicker";
+import { useNavigate } from "react-router-dom";
 
 interface Detail {
   id: string | number;
@@ -48,6 +49,12 @@ const ServiceForm = ({ existingService, onSave }: ServiceFormProps) => {
   const [isDetailModalOpen, setDetailModalOpen] = useState(false);
   const [newDetailName, setNewDetailName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  
+  const navigate = useNavigate();
+
+  const handleCancel = () => {
+    navigate(-1);
+  };
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -242,6 +249,14 @@ const ServiceForm = ({ existingService, onSave }: ServiceFormProps) => {
         </Card>
 
         <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+            className="mx-2"
+          >
+            Отмена
+          </Button>
           <Button type="submit" className="px-8" disabled={isSaving}>
             {isSaving ? "Сохраняю..." : "Сохранить"}
           </Button>

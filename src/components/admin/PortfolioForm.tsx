@@ -7,6 +7,7 @@ import { Label } from "../ui/Label";
 import { Button } from "../ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/Card";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface PortfolioFormProps {
   existingItem?: any;
@@ -21,6 +22,12 @@ const PortfolioForm = ({ existingItem, onSave }: PortfolioFormProps) => {
   const [projectUrl, setProjectUrl] = useState(existingItem?.project_url || "");
   const [imageUrl, setImageUrl] = useState(existingItem?.image_url || "");
   const [uploading, setUploading] = useState(false);
+
+  const navigate = useNavigate();
+
+  const handleCancel = () => {
+    navigate(-1);
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -119,6 +126,14 @@ const PortfolioForm = ({ existingItem, onSave }: PortfolioFormProps) => {
       </Card>
 
       <div className="flex justify-end">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleCancel}
+          className="mx-2"
+        >
+          Отмена
+        </Button>
         <Button type="submit" className="px-8">
           {existingItem ? "Сохранить изменения" : "Создать"}
         </Button>
