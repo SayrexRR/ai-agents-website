@@ -1,20 +1,11 @@
-import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
 import { NavLink } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { useState } from "react";
+import { useSettings } from "../lib/useSettings";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [settings, setSettings] = useState<any>(null);
-
-  useEffect(() => {
-    const fetchSettings = async () => {
-      const { data } = await supabase.from("settings").select("*").single();
-      setSettings(data);
-    };
-    fetchSettings();
-  }, []);
+  const settings = useSettings();
 
   const navItems = [
     { label: "Главная", path: "/" },
@@ -22,8 +13,6 @@ const Navbar = () => {
     { label: "Портфолио", path: "/portfolio" },
     { label: "Блог", path: "/blog" },
     { label: "Контакты", path: "/contact" },
-    { label: "Админ", path: "/admin" },
-    { label: "Логин", path: "/login" },
   ];
 
   return (
@@ -39,7 +28,7 @@ const Navbar = () => {
             />
           ) : (
             <span className="text-2xl font-bold text-blue-600">
-              {settings?.site_name || "AI Agents Site"}
+              {settings?.site_name || "AI Agents"}
             </span>
           )}
         </div>
@@ -64,7 +53,7 @@ const Navbar = () => {
           ))}
         </nav>
 
-        {/* Desktop CTA button */}
+        {/* CTA */}
         <div className="hidden md:block">
           <a
             href="/#order"
@@ -87,36 +76,30 @@ const Navbar = () => {
       {menuOpen && (
         <nav className="md:hidden bg-white shadow-lg border-t">
           <div className="flex flex-col px-4 py-4 space-y-3">
-            <div className="border-b">
-              {navItems.map((item) => (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  end
-                  onClick={() => setMenuOpen(false)}
-                  className={({ isActive }) =>
-                    `block px-2 py-2 rounded transition ${
-                      isActive
-                        ? "text-blue-600 bg-blue-100 font-semibold"
-                        : "text-gray-700 hover:text-blue-500"
-                    }`
-                  }
-                >
-                  {item.label}
-                </NavLink>
-              ))}
-            </div>
-
-            {/* Mobile CTA button */}
-            <div className="my-3">
-              <a
-                href="/#order"
+            {navItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end
                 onClick={() => setMenuOpen(false)}
-                className="w-full text-center bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition"
+                className={({ isActive }) =>
+                  `block px-2 py-2 rounded transition ${
+                    isActive
+                      ? "text-blue-600 bg-blue-100 font-semibold"
+                      : "text-gray-700 hover:text-blue-500"
+                  }`
+                }
               >
-                Заказать
-              </a>
-            </div>
+                {item.label}
+              </NavLink>
+            ))}
+            <a
+              href="/#order"
+              onClick={() => setMenuOpen(false)}
+              className="mt-3 bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition"
+            >
+              Заказать
+            </a>
           </div>
         </nav>
       )}
